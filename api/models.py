@@ -44,6 +44,9 @@ class Order(BaseModel):
         max_length=20, choices=STATUS_CHOICES, default=PROCESSING_STATUS)
     delivered_at = models.DateTimeField(null=True)
 
+    class Meta:
+        ordering = ('-created_at',)
+
     @property
     def delivered(self):
         return True if self.status == self.DELIVERED_STATUS else False
