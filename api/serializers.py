@@ -110,9 +110,10 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         customer_data = validated_data.pop('customer_info')
-        if instance.customer_info.customer.name != customer_data['customer']['name']:
-            instance.customer_info.customer.name = customer_data['customer']['name']
-            instance.customer_info.customer.save()
+        customer = instance.customer_info.customer
+        if customer.name != customer_data['customer']['name']:
+            customer.name = customer_data['customer']['name']
+            customer.save()
         instance.customer_info.address = customer_data['address']
         if 'phone' in customer_data:
             instance.customer_info.phone = customer_data['phone']

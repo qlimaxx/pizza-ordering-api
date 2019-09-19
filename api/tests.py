@@ -2,7 +2,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .models import Customer, CustomerInfo, Pizza, PizzaOrder, PizzaDetail, Order
+from .models import (Customer, CustomerInfo, Order,
+                     Pizza, PizzaDetail, PizzaOrder)
 
 
 CUSTOMER1 = {'name': 'Customer1', 'address': 'Address1', 'phone': '1234'}
@@ -21,7 +22,9 @@ class OrderTestCase(APITestCase):
         PIZZA_NAME = PIZZA_NAME1 if customer_index == 1 else PIZZA_NAME2
         customer = Customer.objects.create(name=CUSTOMER['name'])
         customer_info = CustomerInfo.objects.create(
-            address=CUSTOMER['address'], phone=CUSTOMER['phone'], customer=customer)
+            address=CUSTOMER['address'],
+            phone=CUSTOMER['phone'],
+            customer=customer)
         order = Order.objects.create(customer_info=customer_info)
         pizza = Pizza.objects.create(name=PIZZA_NAME)
         pizza_order = PizzaOrder.objects.create(order=order, pizza=pizza)
@@ -29,8 +32,8 @@ class OrderTestCase(APITestCase):
         return order
 
     def test_list_orders(self):
-        order1 = self._create_order()
-        order2 = self._create_order(customer_index=2)
+        self._create_order()
+        self._create_order(customer_index=2)
         response = self.client.get(reverse('api:orders-list'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         order_data = response.json()
@@ -92,7 +95,7 @@ class OrderTestCase(APITestCase):
 
     def test_create_orders_with_existing_customer(self):
         pizza = Pizza.objects.create(name=PIZZA_NAME1)
-        customer = Customer.objects.create(name=CUSTOMER1['name'])
+        Customer.objects.create(name=CUSTOMER1['name'])
         self.assertEqual(Customer.objects.count(), 1)
         self.assertEqual(CustomerInfo.objects.count(), 0)
         response = self.client.post(reverse('api:orders-list'), {
@@ -177,8 +180,10 @@ class OrderTestCase(APITestCase):
         pizza = Pizza.objects.create(name=PIZZA_NAME1)
         response = self.client.post(reverse('api:orders-list'), {
             'customer': CUSTOMER1,
-            'pizzas': [{'id': pizza.id, 'details': [PIZZA_DETAILS1, PIZZA_DETAILS1]}]
-        }, format='json')
+            'pizzas': [{
+                'id': pizza.id,
+                'details': [PIZZA_DETAILS1, PIZZA_DETAILS1]
+            }]}, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_order_success(self):
@@ -265,7 +270,9 @@ class OrderStatusTestCase(APITestCase):
     def _create_order(self):
         customer = Customer.objects.create(name=CUSTOMER1['name'])
         customer_info = CustomerInfo.objects.create(
-            address=CUSTOMER1['address'], phone=CUSTOMER1['phone'], customer=customer)
+            address=CUSTOMER1['address'],
+            phone=CUSTOMER1['phone'],
+            customer=customer)
         order = Order.objects.create(customer_info=customer_info)
         pizza = Pizza.objects.create(name=PIZZA_NAME1)
         pizza_order = PizzaOrder.objects.create(order=order, pizza=pizza)
@@ -291,7 +298,6 @@ class OrderStatusTestCase(APITestCase):
             'status': Order.DELIVERED_STATUS
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        order_data = response.json()
         order.refresh_from_db()
         self.assertEqual(order.status, Order.DELIVERED_STATUS)
         self.assertTrue(order.delivered)

@@ -3,13 +3,14 @@ from rest_framework import generics, mixins, status, viewsets
 from rest_framework.response import Response
 
 from .filters import OrderFilter
-from .models import Customer, CustomerInfo, Order, Pizza
+from .models import Order, Pizza
 from .serializers import (OrderSerializer, OrderStatusSerializer,
                           PizzaSerializer)
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.select_related('customer_info__customer').prefetch_related(
+    queryset = Order.objects.select_related(
+        'customer_info__customer').prefetch_related(
         'pizzas__pizza').prefetch_related('pizzas__details')
     serializer_class = OrderSerializer
     filter_backends = (DjangoFilterBackend,)
