@@ -1,0 +1,24 @@
+version: '3'
+services:
+  db:
+    image: postgres:11-alpine
+  api:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+    links:
+      - db
+  test:
+    build: .
+    command: python manage.py test
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+    links:
+      - db
