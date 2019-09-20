@@ -4,6 +4,6 @@ RUN apk add --update --no-cache postgresql-dev gcc python3-dev musl-dev
 
 WORKDIR /code
 
-COPY requirements.txt ./
+COPY requirements.txt requirements-dev.txt ./
 
-RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN pip install --upgrade pip && pip install -r requirements-dev.txt

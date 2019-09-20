@@ -15,7 +15,7 @@ services:
       - db
   test:
     build: .
-    command: python manage.py test
+    command: /bin/sh -c "sleep 2; coverage run --source=. manage.py test; coverage report -m"
     volumes:
       - .:/code
     depends_on:
